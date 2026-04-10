@@ -16,7 +16,7 @@ logging.basicConfig(
 
 def main():
     # Path to dataset
-    data_path = "docs/Flutterwave AI Engineer Assessment Dataset.xlsx - log_dataset.csv"
+    data_path = "docs/log_dataset.csv"
 
     # Create loader instance
     loader = LogDataLoader(data_path)

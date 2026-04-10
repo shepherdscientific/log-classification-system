@@ -24,7 +24,7 @@ def test_feature_engineering():
     logger.info("Starting feature engineering test")
 
     # Load data
-    data_path = "docs/Flutterwave AI Engineer Assessment Dataset.xlsx - log_dataset.csv"
+    data_path = "docs/log_dataset.csv"
     loader = LogDataLoader(data_path)
     df = loader.load_data()
 

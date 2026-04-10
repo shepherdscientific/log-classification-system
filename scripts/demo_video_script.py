@@ -210,9 +210,7 @@ class DemoVideoScript:
         try:
             # Try multiple possible dataset paths
             possible_paths = [
-                self.project_root
-                / "docs"
-                / "Flutterwave AI Engineer Assessment Dataset.xlsx - log_dataset.csv",
+                self.project_root / "docs" / "log_dataset.csv",
                 self.project_root / "docs" / "log_dataset.csv",
                 self.project_root / "docs" / "dataset.csv",
             ]

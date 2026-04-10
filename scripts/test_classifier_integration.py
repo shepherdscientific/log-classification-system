@@ -22,7 +22,7 @@ def test_integration():
 
     # 1. Load data
     print("\n1. Loading data...")
-    data_path = "docs/Flutterwave AI Engineer Assessment Dataset.xlsx - log_dataset.csv"
+    data_path = "docs/log_dataset.csv"
     loader = LogDataLoader(data_path)
     df = loader.load_data()
 

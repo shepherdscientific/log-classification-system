@@ -410,7 +410,7 @@ class EndToEndPipeline:
 def main():
     """Main entry point."""
     # Path to dataset
-    data_path = "docs/Flutterwave AI Engineer Assessment Dataset.xlsx - log_dataset.csv"
+    data_path = "docs/log_dataset.csv"
 
     # Check if dataset exists
     if not os.path.exists(data_path):

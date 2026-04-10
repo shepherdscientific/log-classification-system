@@ -197,9 +197,7 @@ def main():
     """Main function to run inference examples."""
     # Path to trained model
     model_path = "models_compare/random_forest/log_classifier_random_forest.joblib"
-    dataset_path = (
-        "docs/Flutterwave AI Engineer Assessment Dataset.xlsx - log_dataset.csv"
-    )
+    dataset_path = "docs/log_dataset.csv"
 
     if not Path(model_path).exists():
         print(f"Error: Model not found at {model_path}")

@@ -12,7 +12,7 @@ from src.data.loader import LogDataLoader
 
 def test_data_loader_basic():
     """Test basic data loading functionality"""
-    data_path = "docs/Flutterwave AI Engineer Assessment Dataset.xlsx - log_dataset.csv"
+    data_path = "docs/log_dataset.csv"
 
     loader = LogDataLoader(data_path)
     df = loader.load_data()
@@ -43,7 +43,7 @@ def test_data_loader_basic():
 
 def test_data_loader_validation():
     """Test data validation functionality"""
-    data_path = "docs/Flutterwave AI Engineer Assessment Dataset.xlsx - log_dataset.csv"
+    data_path = "docs/log_dataset.csv"
 
     loader = LogDataLoader(data_path)
     loader.load_data()
@@ -61,7 +61,7 @@ def test_data_loader_validation():
 
 def test_data_loader_distributions():
     """Test distribution analysis functionality"""
-    data_path = "docs/Flutterwave AI Engineer Assessment Dataset.xlsx - log_dataset.csv"
+    data_path = "docs/log_dataset.csv"
 
     loader = LogDataLoader(data_path)
     loader.load_data()
@@ -103,7 +103,7 @@ def test_data_loader_error_handling():
 
 def test_data_loader_summary():
     """Test summary generation"""
-    data_path = "docs/Flutterwave AI Engineer Assessment Dataset.xlsx - log_dataset.csv"
+    data_path = "docs/log_dataset.csv"
 
     loader = LogDataLoader(data_path)
     loader.load_data()
@@ -122,7 +122,7 @@ def test_data_loader_summary():
 
 def test_data_loader_save_report():
     """Test report saving functionality"""
-    data_path = "docs/Flutterwave AI Engineer Assessment Dataset.xlsx - log_dataset.csv"
+    data_path = "docs/log_dataset.csv"
 
     loader = LogDataLoader(data_path)
     loader.load_data()

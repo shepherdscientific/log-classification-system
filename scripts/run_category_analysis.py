@@ -32,11 +32,7 @@ def main():
     # Step 1: Load the dataset
     print("\n1. Loading dataset...")
     try:
-        dataset_path = (
-            project_root
-            / "docs"
-            / "Flutterwave AI Engineer Assessment Dataset.xlsx - log_dataset.csv"
-        )
+        dataset_path = project_root / "docs" / "log_dataset.csv"
         data_loader = LogDataLoader(str(dataset_path))
         data = data_loader.load_data()
         print(f"   ✓ Loaded {len(data)} log entries")
@@ -73,7 +69,9 @@ def main():
         print(f"     • Error Types: {', '.join(pattern.error_types)}")
         print(f"     • Services: {len(pattern.service_distribution)} services")
         print(
-            f"     • Most Common Service: {max(pattern.service_distribution.items(), key=lambda x: x[1])[0] if pattern.service_distribution else 'N/A'}"
+            f"     • Most Common Service: {max(pattern.service_distribution.items(), key=lambda x: (
+                    x[1]
+                ))[0] if pattern.service_distribution else 'N/A'}"
         )
 
     # Step 6: Generate comprehensive report

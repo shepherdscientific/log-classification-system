@@ -23,9 +23,7 @@ def load_test_data():
     print("Loading test data...")
 
     # Load dataset
-    dataset_path = (
-        "docs/Flutterwave AI Engineer Assessment Dataset.xlsx - log_dataset.csv"
-    )
+    dataset_path = "docs/log_dataset.csv"
     data_loader = LogDataLoader(dataset_path)
     df = data_loader.load_data()
 

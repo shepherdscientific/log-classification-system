@@ -296,7 +296,7 @@ def main():
     parser.add_argument(
         "--data",
         type=str,
-        default="docs/Flutterwave AI Engineer Assessment Dataset.xlsx - log_dataset.csv",
+        default="docs/log_dataset.csv",
         help="Path to CSV dataset",
     )
     parser.add_argument(
