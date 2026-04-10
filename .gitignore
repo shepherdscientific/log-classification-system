@@ -1,0 +1,45 @@
+.aider*
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+.env*
+.venv
+ENV/
+env.bak/
+venv.bak/
+.ipynb_checkpoints/
+*.ipynb
+.DS_Store
+*.log
+
+# Generated artifacts and script outputs
+*.joblib
+*.pkl
+*.csv
+demo.txt
+prd.json
+progress.txt
+opencode.json
+
+# Results directories
+demo_results/
+evaluation_results/
+models_compare/
+models_test/
+reports/
+
+# Models directory (trained models are generated artifacts)
+models/
+
+# Keep only source code and documentation
+!docs/
+!src/
+!tests/
+!scripts/
+!requirements.txt
+!README.md
+!LICENSE.txt
