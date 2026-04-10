@@ -16,7 +16,7 @@ This system provides an automated pipeline for classifying system error logs int
 ├── tests/                 # Test files
 ├── requirements.txt       # Python dependencies
 ├── scripts/               # Utility scripts for training, evaluation, inference
-├── models/                # Saved trained models
+├── models/                # Saved trained models and inference pipeline
 ├── evaluation_results/    # Evaluation metrics and visualizations
 ├── models_compare/        # Model comparison results
 └── README.md             # Project documentation
@@ -70,6 +70,7 @@ graph TD
 * **Text Features**: TF-IDF vectorization is tuned for a small corpus with the following parameters: `max_features=100`, `min_df=2`, and `max_df=0.95`.
 * **Categorical Features**: One-hot encoding is applied to "service" and "severity" columns.
 * **Temporal Features**: The system extracts the hour of day, day of week, and specific indicators for weekend activity or business hours (9 AM - 5 PM).
+* **Total Features**: 107 features (100 TF-IDF + 3 categorical + 4 temporal).
 
 ### 3. Training Methodology
 * **Split Ratio**: 70% training (84 samples) and 30% testing (36 samples).
@@ -118,6 +119,7 @@ The Random Forest model demonstrated strong generalization capabilities despite 
 * **Generalization**: Performance on real-world, non-synthetic logs remains unverified.
 * **Temporal Modeling**: The current version treats logs as independent events, ignoring sequence patterns that often precede system failures.
 * **Scalability**: The prototype is not yet optimized for high-volume streaming environments.
+* **Edge Cases**: Handles unseen services, empty messages, and missing columns with graceful degradation.
 
 ---
 
@@ -148,5 +150,6 @@ pip install -r requirements.txt
 
 ### Execution
 * **Training**: `python scripts/train_model.py --model-type random_forest`
-* **Inference**: `python scripts/run_inference.py --input-file logs.csv`
+* **Inference Pipeline**: `python scripts/create_inference_pipeline.py`
+* **Inference**: `python scripts/run_inference.py`
 * **Tests**: `pytest tests/ -v`

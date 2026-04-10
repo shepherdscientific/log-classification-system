@@ -27,7 +27,7 @@ def run_single_prediction(predictor: LogPredictor) -> None:
     examples = [
         {
             "log_message": "Database connection timeout after 30 seconds. Retrying...",
-            "service": "payment-service",
+            "service": "db-pool",
             "severity": "ERROR",
             "description": "Database connectivity issue (likely RC-01)",
         },
@@ -45,31 +45,31 @@ def run_single_prediction(predictor: LogPredictor) -> None:
         },
         {
             "log_message": "Invalid JWT token format in authorization header",
-            "service": "user-service",
+            "service": "oauth-handler",
             "severity": "ERROR",
             "description": "Authentication/authorization issue (likely RC-04)",
         },
         {
             "log_message": "Payment transaction failed: insufficient funds",
-            "service": "transaction-service",
+            "service": "payments-core",
             "severity": "ERROR",
             "description": "Business logic error (likely RC-05)",
         },
         {
             "log_message": "Network latency detected: 500ms average response time",
-            "service": "monitoring-service",
+            "service": "service-mesh",
             "severity": "WARNING",
             "description": "Network/performance issue (likely RC-06)",
         },
         {
             "log_message": "Configuration file not found: /etc/app/config.yaml",
-            "service": "config-service",
+            "service": "iam-middleware",
             "severity": "ERROR",
             "description": "Configuration issue (likely RC-07)",
         },
         {
             "log_message": "Third-party API response timeout after 10 seconds",
-            "service": "integration-service",
+            "service": "http-client",
             "severity": "ERROR",
             "description": "External dependency failure (likely RC-08)",
         },
@@ -107,26 +107,26 @@ def run_batch_prediction(predictor: LogPredictor) -> None:
     batch_data = pd.DataFrame(
         [
             {
-                "log_message": "Database connection pool exhausted",
-                "service": "payment-service",
+                "log_message": "Database connection pool exhausted. Max connections: 100",
+                "service": "db-pool",
                 "severity": "ERROR",
                 "timestamp": "2026-04-09T10:15:30",
             },
             {
                 "log_message": "Invalid request payload: missing required field 'amount'",
                 "service": "api-gateway",
-                "severity": "ERROR",
+                "severity": "WARNING",
                 "timestamp": "2026-04-09T10:16:45",
             },
             {
                 "log_message": "CPU usage at 98% for 5 minutes",
-                "service": "monitoring-service",
+                "service": "log-aggregator",
                 "severity": "CRITICAL",
                 "timestamp": "2026-04-09T10:17:20",
             },
             {
                 "log_message": "SSL certificate expired for domain api.example.com",
-                "service": "security-service",
+                "service": "audit-service",
                 "severity": "CRITICAL",
                 "timestamp": "2026-04-09T10:18:10",
             },
@@ -195,35 +195,32 @@ def test_error_handling(predictor: LogPredictor) -> None:
 
 def main():
     """Main function to run inference examples."""
-    # Path to trained model
-    model_path = "models/log_classifier_random_forest.joblib"
-    dataset_path = "docs/log_dataset.csv"
+    # Path to inference pipeline
+    inference_pipeline_path = "models/inference_pipeline.joblib"
 
-    if not Path(model_path).exists():
-        print(f"Error: Model not found at {model_path}")
-        print("Please train the model first using scripts/train_model.py")
-        return
-
-    if not Path(dataset_path).exists():
-        print(f"Error: Dataset not found at {dataset_path}")
+    if not Path(inference_pipeline_path).exists():
+        print(f"Error: Inference pipeline not found at {inference_pipeline_path}")
+        print(
+            "Please create inference pipeline first using scripts/create_inference_pipeline.py"
+        )
         return
 
     print("Loading inference pipeline...")
     try:
-        # Initialize predictor with dataset to create feature engineer
-        predictor = LogPredictor(model_path, dataset_path=dataset_path)
+        # Load the complete inference pipeline
+        predictor = LogPredictor.load(inference_pipeline_path)
 
         # Run examples
         run_single_prediction(predictor)
         run_batch_prediction(predictor)
         test_error_handling(predictor)
 
-        # Save predictor state for later use
-        predictor.save("models/inference_pipeline.joblib")
-        print(f"\nSaved inference pipeline to models/inference_pipeline.joblib")
+        print(
+            f"\n✓ Inference pipeline loaded successfully from {inference_pipeline_path}"
+        )
 
     except Exception as e:
-        print(f"Failed to initialize predictor: {e}")
+        print(f"Failed to load inference pipeline: {e}")
         return
 
 
