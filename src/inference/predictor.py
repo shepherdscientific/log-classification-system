@@ -522,7 +522,9 @@ class LogPredictor:
 
             # Create combined text feature for TF-IDF
             df["combined_text"] = df.apply(
-                lambda row: f"{row['clean_message']} {' '.join(row['service_patterns']) if isinstance(row['service_patterns'], list) else ''} {row['error_type']}",
+                lambda row: (
+                    f"{row['clean_message']} {' '.join(row['service_patterns']) if isinstance(row['service_patterns'], list) else ''} {row['error_type']}"
+                ),
                 axis=1,
             )
 
@@ -540,9 +542,26 @@ class LogPredictor:
 
             # Encode service
             if self.feature_engineer.service_encoder:
-                service_encoded = self.feature_engineer.service_encoder.transform(
-                    df["service"]
-                )
+                try:
+                    service_encoded = self.feature_engineer.service_encoder.transform(
+                        df["service"]
+                    )
+                except ValueError as e:
+                    # Handle unseen labels by mapping them to -1
+                    logger.warning(f"Unseen service labels: {e}. Mapping to -1.")
+                    # Create a mapping for known labels
+                    known_services = set(self.feature_engineer.service_encoder.classes_)
+                    service_encoded = []
+                    for service in df["service"]:
+                        if service in known_services:
+                            service_encoded.append(
+                                self.feature_engineer.service_encoder.transform(
+                                    [service]
+                                )[0]
+                            )
+                        else:
+                            service_encoded.append(-1)  # Unknown service
+                    service_encoded = np.array(service_encoded)
             else:
                 # Fallback: map to integers
                 service_encoded = pd.factorize(df["service"])[0]

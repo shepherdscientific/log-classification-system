@@ -105,7 +105,9 @@ class LogFeatureEngineer:
 
         # Create combined text feature for TF-IDF
         self.df["combined_text"] = self.df.apply(
-            lambda row: f"{row['clean_message']} {' '.join(row['service_patterns'])} {row['error_type']}",
+            lambda row: (
+                f"{row['clean_message']} {' '.join(row['service_patterns'])} {row['error_type']}"
+            ),
             axis=1,
         )
 
@@ -251,7 +253,9 @@ class LogFeatureEngineer:
             # Convert categorical and timestamp features to sparse matrices
             categorical_sparse = csr_matrix(categorical_features)
             timestamp_sparse = csr_matrix(timestamp_features)
-            all_features = hstack([tfidf_features, categorical_sparse, timestamp_sparse])
+            all_features = hstack(
+                [tfidf_features, categorical_sparse, timestamp_sparse]
+            )
         else:
             all_features = np.hstack([categorical_features, timestamp_features])
 
@@ -330,3 +334,26 @@ class LogFeatureEngineer:
         }
 
         return analysis
+
+    def __getstate__(self) -> Dict[str, Any]:
+        """Custom serialization for joblib."""
+        state = self.__dict__.copy()
+
+        # Remove the DataFrame as it's not needed for inference
+        # and can cause serialization issues
+        if "df" in state:
+            del state["df"]
+
+        # Ensure sklearn objects are properly serializable
+        # They should serialize fine with joblib's default handling
+        return state
+
+    def __setstate__(self, state: Dict[str, Any]) -> None:
+        """Custom deserialization for joblib."""
+        self.__dict__.update(state)
+
+        # Initialize missing attributes if needed
+        if not hasattr(self, "df"):
+            self.df = None
+        if not hasattr(self, "feature_names"):
+            self.feature_names = []
