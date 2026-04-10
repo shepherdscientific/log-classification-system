@@ -36,10 +36,10 @@ reports/
 models/
 
 # Keep only source code and documentation
-!docs/
-!src/
-!tests/
-!scripts/
+!docs/*
+!src/*
+!tests/*
+!scripts/*
 !requirements.txt
 !README.md
 !LICENSE.txt
