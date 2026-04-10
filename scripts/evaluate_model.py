@@ -27,9 +27,13 @@ def load_test_data():
     data_loader = LogDataLoader(dataset_path)
     df = data_loader.load_data()
 
-    # Create features
+    # Create features with same parameters as training
     feature_engineer = LogFeatureEngineer(df)
-    X, feature_names = feature_engineer.create_all_features()
+    X, feature_names = feature_engineer.create_all_features(
+        tfidf_max_features=100,  # Same as training
+        tfidf_min_df=1,
+        tfidf_max_df=1.0,
+    )
     y = feature_engineer.prepare_labels()
 
     # Split data (using same random state as training)
@@ -46,7 +50,7 @@ def load_trained_model():
     """Load trained model from file."""
     print("Loading trained model...")
 
-    model_path = "models_compare/random_forest/log_classifier_random_forest.joblib"
+    model_path = "models/log_classifier_random_forest.joblib"
 
     if not Path(model_path).exists():
         raise FileNotFoundError(f"Model not found at {model_path}")

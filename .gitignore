@@ -39,7 +39,7 @@ models/
 !docs/*
 !src/*
 !tests/*
-!scripts/*
+!scripts/
 !requirements.txt
 !README.md
 !LICENSE.txt

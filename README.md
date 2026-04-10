@@ -86,18 +86,24 @@ The Random Forest model demonstrated strong generalization capabilities despite 
 | :--- | :--- |
 | **Test Accuracy** | 83.3% |
 | **Inference Accuracy** | 87.5% |
-| **Macro F1-Score** | 80.7% |
-| **Weighted Precision** | 86.1% |
+| **Macro F1-Score** | 81.1% |
+| **Weighted Precision** | 85.7% |
+| **ROC-AUC (One-vs-Rest)** | 98.2% |
+| **Average Precision** | 93.7% |
 
 ### Per-Class Performance Data
-| Root Cause | Precision | Recall | F1-Score |
-| :--- | :--- | :--- | :--- |
-| **RC-01** | 83.3% | 100.0% | 90.9% |
-| **RC-06** | 100.0% | 100.0% | 100.0% |
-| **RC-07** | 100.0% | 80.0% | 88.9% |
-| **RC-08** | 100.0% | 25.0% | 40.0% |
+| Root Cause | Precision | Recall | F1-Score | Support |
+| :--- | :--- | :--- | :--- | :--- |
+| **RC-01** | 83.3% | 100.0% | 90.9% | 5 |
+| **RC-02** | 80.0% | 100.0% | 88.9% | 4 |
+| **RC-03** | 80.0% | 80.0% | 80.0% | 5 |
+| **RC-04** | 100.0% | 75.0% | 85.7% | 4 |
+| **RC-05** | 83.3% | 100.0% | 90.9% | 5 |
+| **RC-06** | 100.0% | 100.0% | 100.0% | 4 |
+| **RC-07** | 66.7% | 80.0% | 72.7% | 5 |
+| **RC-08** | 100.0% | 25.0% | 40.0% | 4 |
 
-> **Analysis**: While the model achieved perfect classification for RC-06, it struggled with RC-08 (25% recall). This identifies a specific area where increased data collection or refined feature engineering is required.
+> **Analysis**: The model achieved perfect classification for RC-06 and strong performance for most classes. RC-08 showed the lowest recall (25%), indicating this class may have overlapping patterns with other categories (RC-02, RC-03, RC-07). This identifies a specific area where increased data collection or refined feature engineering is required.
 
 ---
 
