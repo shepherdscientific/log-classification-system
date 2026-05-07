@@ -372,12 +372,22 @@ class LogPredictor:
                         label = str(idx)
                     top_predictions.append((label, float(probs[idx])))
 
-                # Get prediction confidence
-                pred_idx = (
-                    self.root_cause_labels.index(pred)
-                    if pred in self.root_cause_labels
-                    else 0
-                )
+                # Get prediction confidence.
+                # `pred` is whatever sklearn's classifier emits — typically a numpy
+                # integer class index, but it can also be a string label depending on
+                # how the label encoder was configured. The previous implementation
+                # only handled the string case and silently fell through to
+                # `else 0` for the numeric case, so confidence always reported
+                # `probs[0]` (the probability of RC-01) regardless of the actual
+                # prediction. Resolve `pred_idx` for both cases.
+                if isinstance(pred, (int, np.integer)) and 0 <= int(pred) < len(probs):
+                    pred_idx = int(pred)
+                elif pred in self.root_cause_labels:
+                    pred_idx = self.root_cause_labels.index(pred)
+                else:
+                    # Last-resort fallback: take the argmax of the probability vector
+                    # so confidence at least matches the top-1 prediction.
+                    pred_idx = int(np.argmax(probs))
                 confidence = float(probs[pred_idx])
 
                 # Get features used for this prediction

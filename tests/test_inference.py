@@ -489,5 +489,92 @@ class TestLogPredictor:
         )
 
 
+class TestNumericClassIndexConfidence:
+    """
+    Regression tests for the confidence-lookup bug.
+
+    Real classifiers fitted with sklearn's LabelEncoder return numeric class
+    indices from `model.predict(...)`. The predictor used to lose track of the
+    numeric case and silently fall back to `probs[0]`, so `confidence` always
+    reported the probability of RC-01 regardless of what was actually predicted.
+
+    These tests exercise the numeric-index path that production hits but the
+    existing string-label tests miss.
+    """
+
+    @pytest.fixture
+    def numeric_predictor(self):
+        """Predictor whose model emits numeric class indices, like a real fitted RF."""
+        model = Mock()
+        # Build a probability matrix where each row's argmax is in a different,
+        # non-zero column — so the bug (always reading probs[0]) is detectable.
+        proba = np.array(
+            [
+                [0.05, 0.10, 0.80, 0.05, 0.00, 0.00, 0.00, 0.00],  # argmax = 2 (RC-03)
+                [0.10, 0.05, 0.05, 0.05, 0.05, 0.65, 0.05, 0.00],  # argmax = 5 (RC-06)
+                [0.02, 0.03, 0.05, 0.05, 0.05, 0.05, 0.05, 0.70],  # argmax = 7 (RC-08)
+            ]
+        )
+        # The real classifier returns numpy ints for the argmax of each row.
+        model.predict.return_value = np.argmax(proba, axis=1)
+        model.predict_proba.return_value = proba
+
+        with patch("joblib.load") as mock_load:
+            mock_load.return_value = {
+                "model": model,
+                "feature_engineer": None,  # we'll bypass _transform_features below
+                "root_cause_labels": [f"RC-{i:02d}" for i in range(1, 9)],
+            }
+            predictor = LogPredictor("dummy_model.joblib")
+
+        # Skip feature engineering — we want to test the prediction-bookkeeping path,
+        # not the transform path. The model is a Mock so it doesn't care what
+        # `features` looks like; _predict_batch only feeds it through.
+        predictor._transform_features = lambda df: np.zeros((len(df), 1))
+        return predictor, proba
+
+    def test_confidence_matches_top_class_for_numeric_predictions(self, numeric_predictor):
+        """For each row, pred.confidence must equal the probability of the predicted class."""
+        predictor, proba = numeric_predictor
+        batch = pd.DataFrame(
+            [
+                {"log_message": "upstream 502", "service": "fx-rate-fetcher", "severity": "High",
+                 "timestamp": "2024-05-28T21:04:00Z"},
+                {"log_message": "privilege escalation blocked", "service": "data-export", "severity": "High",
+                 "timestamp": "2024-11-11T21:19:00Z"},
+                {"log_message": "packet loss spike on segment", "service": "network-mon", "severity": "Critical",
+                 "timestamp": "2024-12-01T00:00:00Z"},
+            ]
+        )
+
+        results = predictor.predict_batch(batch)
+
+        # Each row's confidence should equal the max probability for that row.
+        # Pre-fix, all three would equal proba[i, 0] (the RC-01 probability).
+        expected_confidences = proba.max(axis=1)
+        actual_confidences = np.array([r.confidence for r in results])
+        np.testing.assert_allclose(actual_confidences, expected_confidences, rtol=1e-6)
+
+        # And confidence must agree with top_n_predictions[0] (which is computed
+        # via argsort and was always correct).
+        for r in results:
+            assert r.confidence == pytest.approx(r.top_n_predictions[0][1])
+            assert r.root_cause == r.top_n_predictions[0][0]
+
+    def test_predicted_label_resolves_to_correct_RC_string(self, numeric_predictor):
+        """Predicted root_cause should be the string label for the numeric index, not RC-01."""
+        predictor, _ = numeric_predictor
+        batch = pd.DataFrame(
+            [
+                {"log_message": "x", "service": "s", "severity": "High", "timestamp": "2024-01-01T00:00:00Z"},
+                {"log_message": "y", "service": "s", "severity": "High", "timestamp": "2024-01-01T00:00:00Z"},
+                {"log_message": "z", "service": "s", "severity": "High", "timestamp": "2024-01-01T00:00:00Z"},
+            ]
+        )
+
+        results = predictor.predict_batch(batch)
+        assert [r.root_cause for r in results] == ["RC-03", "RC-06", "RC-08"]
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
